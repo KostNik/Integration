@@ -1,0 +1,51 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xmlns:int="http://www.springframework.org/schema/integration"
+       xmlns:context="http://www.springframework.org/schema/context"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans
+           http://www.springframework.org/schema/beans/spring-beans.xsd
+           http://www.springframework.org/schema/integration
+           http://www.springframework.org/schema/integration/spring-integration.xsd http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context.xsd">
+
+    <!--queue-->
+    <!--LinkedBlockingQueue-->
+    <int:channel id="newAccounts_q">
+        <int:queue capacity="100"/>
+    </int:channel>
+
+    <!--priority-->
+    <int:channel id="newAccounts_p">
+        <int:priority-queue capacity="10" comparator="accountAgeComparator"/>
+    </int:channel>
+
+    <bean id="accountAgeComparator" class="com.edu.channels.AccountAgeComparator"/>
+
+    <!--rendezvous-->
+    <!--SynchronousQueue-->
+    <int:channel id="newAccounts_rv">
+        <int:rendezvous-queue/>
+    </int:channel>
+
+
+    <!--SubscribableChannel-->
+    <!--publish-subscribe-->
+    <int:publish-subscribe-channel id="newAccounts_ps"/>
+
+    <!--direct channel-->
+    <int:channel id="newAccounts_d">
+        <int:dispatcher failover="false" load-balancer="round-robin"/>
+    </int:channel>
+
+    <!--executable channel-->
+    <int:channel id="newAccounts_exec">
+        <int:dispatcher task-executor="accountsExecutor"
+                        failover="true"
+                        load-balancer="round-robin"/>
+    </int:channel>
+
+    <!--org.springframework.core.task.TaskExecutor-->
+    <bean id="accountsExecutor" class="com.edu.channels.executors.AccountsExecutor"/>
+
+
+</beans>
