@@ -8,9 +8,18 @@
            http://www.springframework.org/schema/integration
            http://www.springframework.org/schema/integration/spring-integration.xsd http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context.xsd">
 
-    <import resource="channels/channels-config.xml"/>
-    <import resource="endpoints/endpoints-config.xml"/>
-    <context:component-scan base-package="com.edu"/>
+
+    <!--service-activator-->
+    <int:service-activator
+            input-channel="positions-channel"
+            ref="accountProcessor"
+            method="supplyAccount"
+    >
+        <!--to return smth to output channel-->
+        <!--method="consumeAccount"-->
+    </int:service-activator>
+
+    <bean id="accountProcessor" class="com.edu.endpoints.AccountProcessor"/>
 
 
 </beans>
