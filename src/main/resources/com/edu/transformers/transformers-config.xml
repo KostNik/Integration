@@ -1,0 +1,107 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xmlns:int="http://www.springframework.org/schema/integration"
+       xmlns:int-stream="http://www.springframework.org/schema/integration/stream"
+       xmlns:int-xml="http://www.springframework.org/schema/integration/xml"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans
+           http://www.springframework.org/schema/beans/spring-beans.xsd
+           http://www.springframework.org/schema/integration
+           http://www.springframework.org/schema/integration/spring-integration.xsd
+           http://www.springframework.org/schema/integration/stream
+           http://www.springframework.org/schema/integration/stream/spring-integration-stream.xsd
+           http://www.springframework.org/schema/integration/xml
+           http://www.springframework.org/schema/integration/xml/spring-integration-xml.xsd">
+
+    <!--String Transformers-->
+    <int:object-to-string-transformer
+            input-channel="in-channel"
+            output-channel="stdout"/>
+
+    <int-stream:stdout-channel-adapter id="stdout"/>
+
+
+    <!--Map Transformers-->
+    <int:object-to-map-transformer
+            input-channel="in-channel"
+            output-channel="stdout">
+    </int:object-to-map-transformer>
+
+    <int-stream:stdout-channel-adapter id="stdout_1"/>
+
+    <int:map-to-object-transformer
+            input-channel="in-channel"
+            output-channel="stdout">
+    </int:map-to-object-transformer>
+
+    <!--Serializing and Deserializing Transformers-->
+    <int:payload-serializing-transformer
+            input-channel="trades-in-channel"
+            output-channel="trades-out-channel"/>
+
+    <int:payload-deserializing-transformer
+            input-channel="trades-out-channel"
+            output-channel="stdout">
+
+    </int:payload-deserializing-transformer>
+    <int-stream:stdout-channel-adapter id="stdout_2"/>
+
+    <!--JSON Transformers-->
+
+    <int:object-to-json-transformer
+            input-channel="trades-in-channel"
+            output-channel="stdout">
+    </int:object-to-json-transformer>
+
+    <int:json-to-object-transformer
+            input-channel="trades-in-channel"
+            output-channel="trades-out-channel"
+            type="com.edu.data.Account">
+    </int:json-to-object-transformer>
+
+
+    <!--XML Transformers-->
+    <!--org.springframework.oxm.Marshaller and the org.springframework.oxm.Unmarshal ler.-->
+    <!--result-type="DOMResult">   -->
+
+    <int-xml:marshalling-transformer
+            input-channel="trades-in-channel"
+            output-channel="stdout"
+            marshaller="marshaller"
+            result-type="StringResult">
+    </int-xml:marshalling-transformer>
+    <bean id="marshaller"
+          class="org.springframework.oxm.castor.CastorMarshaller"/>
+
+    <!--Custom result factory-->
+    <int-xml:marshalling-transformer
+            input-channel="trades-in-channel-xml"
+            output-channel="trades-out-channel"
+            marshaller="marshaller"
+            result-factory="tradeResultFactory">
+    </int-xml:marshalling-transformer>
+
+    <bean id="tradeResultFactory"
+          class="com.edu.transformers.AccountResultFactory"/>
+
+    <!--XPath Transformers-->
+
+    <int-xml:xpath-transformer
+            input-channel="trades-in-channel_xpath"
+            output-channel="stdout"
+            xpath-expression="/account/@name">
+
+
+    </int-xml:xpath-transformer>
+    <!--<int:poller fixed-rate="1000" />-->
+
+    <!--Custom transformer-->
+    <int:transformer input-channel="trades-in-channel"
+                     output-channel="trades-out-channel" ref="tradeMapTransformer">
+    </int:transformer>
+
+    <bean id="tradeMapTransformer"
+          class="com.edu.transformers.AccountKeyValueTransformer"/>
+
+
+</beans>
