@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xmlns:int="http://www.springframework.org/schema/integration"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans
+           http://www.springframework.org/schema/beans/spring-beans.xsd
+           http://www.springframework.org/schema/integration
+           http://www.springframework.org/schema/integration/spring-integration.xsd">
+
+    <int:poller id="poller_1" max-messages-per-poll="1" fixed-rate="500"/>
+
+    <int:gateway id="randomAccountGateway"
+                 default-request-channel="account-rnd-in-channel"
+                 default-reply-channel="account-rnd-out-channel"
+                 service-interface="com.edu.gateway.AccountGateway">
+    </int:gateway>
+
+    <int:service-activator
+            input-channel="account-rnd-in-channel"
+            output-channel="account-rnd-out-channel"
+            ref="accountProcessor"
+            method="supplyAccount"
+    >
+        <int:poller ref="poller_1"/>
+
+        <!--to return smth to output channel-->
+        <!--method="consumeAccount"-->
+    </int:service-activator>
+
+    <bean id="accountProcessor" class="com.edu.endpoints.AccountProcessor"/>
+
+    <int:channel id="account-rnd-in-channel">
+        <int:queue capacity="5"/>
+        <int:interceptors>
+            <ref bean="accountInterceptor"/>
+        </int:interceptors>
+    </int:channel>
+
+    <int:channel id="account-rnd-out-channel">
+        <int:queue capacity="2"/>
+    </int:channel>
+
+    <bean id="accountInterceptor" class="com.edu.interceptors.AccountInterCeptor"/>
+
+</beans>

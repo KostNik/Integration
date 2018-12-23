@@ -18,11 +18,15 @@ dependencies {
     compile group: 'org.springframework.integration', name: 'spring-integration-xml', version: '5.1.1.RELEASE'
 
     compile group: 'org.apache.logging.log4j', name: 'log4j-core', version: '2.11.1'
-    compile group: 'org.slf4j', name: 'slf4j-log4j12', version: '1.7.25'
-    compile group: 'org.slf4j', name: 'slf4j-api', version: '1.7.25'
     compile group: 'com.fasterxml.jackson.core', name: 'jackson-databind', version: '2.9.7'
     compile group: 'com.fasterxml.jackson.core', name: 'jackson-core', version: '2.9.7'
     compile group: 'com.fasterxml.jackson.core', name: 'jackson-annotations', version: '2.9.7'
+    compile group: 'org.codehaus.castor', name: 'castor-xml', version: '1.4.1'
+    compile group: 'ch.qos.logback', name: 'logback-core', version: '1.2.3'
+
+
+    compile group: 'io.reactivex.rxjava2', name: 'rxjava', version: '2.2.4'
+
 
     compile group: 'org.apache.commons', name: 'commons-lang3', version: '3.8.1'
     compile group: 'com.google.guava', name: 'guava', version: '27.0-jre'

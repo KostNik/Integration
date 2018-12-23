@@ -1,11 +1,11 @@
 package com.edu.transformers;
 
 import com.edu.data.Account;
-import lombok.extern.slf4j.Slf4j;
+import lombok.extern.log4j.Log4j2;
 import org.springframework.integration.annotation.Transformer;
 import org.springframework.stereotype.Component;
 
-@Slf4j
+@Log4j2
 @Component
 public class AccountStringTransformer {
 
