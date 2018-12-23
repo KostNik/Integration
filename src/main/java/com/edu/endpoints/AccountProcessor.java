@@ -1,25 +1,21 @@
 package com.edu.endpoints;
 
 import com.edu.data.Account;
-import com.edu.data.AccountType;
-import lombok.extern.slf4j.Slf4j;
+import lombok.extern.log4j.Log4j2;
 
-@Slf4j
+@Log4j2
 public class AccountProcessor {
 
     public void consumeAccount(Account account) {
-        log.info("account {} was consumed", account);
+        log.info("CONSUMED!!!                               {} was consumed", account);
     }
 
 
     public Account supplyAccount(Account account_1) {
         consumeAccount(account_1);
-        Account account = new Account();
-        account.setName("GENERATED");
-        account.setAge(999);
-        account.setAccountType(AccountType.PUBLIC);
-        log.info("account {} was generated", account);
-        return account;
+//        Account account = Account.builder().accountType(AccountType.PUBLIC).age(999).name("GENERATED").build();
+//        log.info("Supplied!!! account {} was generated", account);
+        return account_1;
     }
 
 

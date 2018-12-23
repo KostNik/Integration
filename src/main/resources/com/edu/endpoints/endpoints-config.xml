@@ -2,11 +2,11 @@
 <beans xmlns="http://www.springframework.org/schema/beans"
        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
        xmlns:int="http://www.springframework.org/schema/integration"
-       xmlns:context="http://www.springframework.org/schema/context"
+       xmlns:task="http://www.springframework.org/schema/task"
        xsi:schemaLocation="http://www.springframework.org/schema/beans
            http://www.springframework.org/schema/beans/spring-beans.xsd
            http://www.springframework.org/schema/integration
-           http://www.springframework.org/schema/integration/spring-integration.xsd http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context.xsd">
+           http://www.springframework.org/schema/integration/spring-integration.xsd http://www.springframework.org/schema/task http://www.springframework.org/schema/task/spring-task.xsd">
 
 
     <!--service-activator-->
@@ -20,6 +20,97 @@
     </int:service-activator>
 
     <bean id="accountProcessor" class="com.edu.endpoints.AccountProcessor"/>
+
+
+    <!--MessageBridge-->
+    <int:publish-subscribe-channel
+            id="trades-in-channel"/>
+
+    <int:channel id="trades-out-channel">
+        <int:queue capacity="10"/>
+    </int:channel>
+
+    <!-- Bridges pub/sub channel to a p2p channel -->
+    <int:bridge input-channel="trades-in-channel"
+                output-channel="trades-out-channel"/>
+
+    <int:service-activator
+            input-channel="trades-out-channel"
+            ref="accountProcessor">
+        <int:poller>
+            <!--<int:transactional isolation="DEFAULT" propagation="NEVER"/>-->
+        </int:poller>
+    </int:service-activator>
+
+
+    <!--Message Enricher-->
+    <!--Header Enricher-->
+
+    <int:header-enricher
+            input-channel="in-channel"
+            output-channel="trades-out-channel">
+        <int:header name="SRC_SYSTEM" value="BBG"/>
+        <int:header name="TARGET_SYSTEM" value="LOCAL"/>
+    </int:header-enricher>
+
+    <int:header-enricher id="maxi-enricher" input-channel="in-channel"
+                         output-channel="trades-out-channel">
+        <int:priority value="10"/>
+        <int:error-channel ref="myErrorChannel"/>
+        <int:correlation-id value="APP_OWN_ID"/>
+        <int:reply-channel value="reply-channel"/>
+        <int:header name="SRC_SYSTEM" value="BBG"/>
+    </int:header-enricher>
+    <int:publish-subscribe-channel id="myErrorChannel"/>
+
+
+    <!--setting  header  properties  using  payload-->
+    <int:header-enricher id="pojo-enricher"
+                         input-channel="in-channel"
+                         output-channel="trades-out-channel">
+        <int:header name="ID"
+                    ref="accountEnricher" method="enrichHeader"/>
+    </int:header-enricher>
+
+    <bean id="accountEnricher" class="com.edu.enricher.AccountHeaderEnricher"/>
+
+    <!--Payload Enricher-->
+
+    <!--Like any other endpoint, the enricher expects a message in-->
+    <!--the input-channel, too.
+    It picks up the message and passes it on to request-channel and-->
+    <!--waits for a reply.
+    There should be some other component listening on this request(service-activator)- -->
+    <!--channel to enrich the message. After enriching the payload, this component then pub- -->
+    <!--lishes the reply back to the reply channel. The reply channel is declared as a header-->
+    <!--property on the message itself (see the Price Message below). Once the enricher gets a-->
+    <!--reply, it sets the properties with the enriched data by using expressions-->
+
+    <int:enricher input-channel="in-channel"
+                  request-channel="enricher-req-channel"
+                  output-channel="stdout">
+        <int:property name="name" expression="payload.name"/>
+        <int:property name="type" expression="payload.accountType"/>
+    </int:enricher>
+    <int:service-activator input-channel="enricher-req-channel"
+                           ref="accountEnricher" method="enrichPayload">
+    </int:service-activator>
+
+    <!--Message<Account> msg = MessageBuilder.withPayload(p)-->
+    <!--.setHeader(MessageHeaders.REPLY_CHANNEL, "reply-channel")-->
+    <!--.build();-->
+
+
+
+    <!--The Delayer  endpoint  is  used  to  introduce  delay  between  sender  and  receiver-->
+
+    <int:delayer id="delayer" input-channel="input" output-channel="out-channel"
+                 default-delay="3000" expression="headers['delay']" scheduler="exampleTaskScheduler"/>
+
+    <task:scheduler id="exampleTaskScheduler" pool-size="3"/>
+
+    <int:channel id="out-channel"/>
+    <int:channel id="prices-out-channel"/>
 
 
 </beans>

@@ -1,7 +1,7 @@
 package com.edu.transformers;
 
 import com.edu.data.Account;
-import lombok.extern.slf4j.Slf4j;
+import lombok.extern.log4j.Log4j2;
 import org.springframework.integration.support.MessageBuilder;
 import org.springframework.integration.transformer.Transformer;
 import org.springframework.messaging.Message;
@@ -9,7 +9,7 @@ import org.springframework.messaging.Message;
 import java.util.HashMap;
 import java.util.Map;
 
-@Slf4j
+@Log4j2
 public class AccountKeyValueTransformer implements Transformer {
 
     public Map<String, Object> transform(Account account) {

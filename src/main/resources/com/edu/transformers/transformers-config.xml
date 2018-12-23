@@ -29,10 +29,10 @@
 
     <int-stream:stdout-channel-adapter id="stdout_1"/>
 
-    <int:map-to-object-transformer
-            input-channel="in-channel"
-            output-channel="stdout">
-    </int:map-to-object-transformer>
+    <!--<int:map-to-object-transformer-->
+            <!--input-channel="in-channel"-->
+            <!--output-channel="stdout">-->
+    <!--</int:map-to-object-transformer>-->
 
     <!--Serializing and Deserializing Transformers-->
     <int:payload-serializing-transformer
