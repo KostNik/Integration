@@ -5,7 +5,7 @@ import lombok.Data;
 
 @Data
 @Builder
-public class Account {
+public class Account implements IAccount{
 
     private String name;
     private int age;
