@@ -1,0 +1,53 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xmlns:int="http://www.springframework.org/schema/integration"
+       xmlns:context="http://www.springframework.org/schema/context"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans
+           http://www.springframework.org/schema/beans/spring-beans.xsd
+           http://www.springframework.org/schema/integration
+           http://www.springframework.org/schema/integration/spring-integration.xsd http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context.xsd">
+
+    <!--PayloadTypeRouter-->
+    <int:payload-type-router input-channel="all-in-channel">
+        <int:mapping type="com.edu.data.Account"
+                     channel="newAccounts_q"/>
+        <int:mapping type="com.edu.data.User"
+                     channel="in-channel"/>
+    </int:payload-type-router>
+
+
+    <!-- HeaderValueRouter-->
+    <int:header-value-router input-channel="all-in-channel"
+                             header-name="status"
+                             default-output-channel="newAccounts_q">
+        <int:mapping value="NEW" channel="in-channel"/>
+        <int:mapping value="CANCEL" channel="account-rnd-in-channel"/>
+    </int:header-value-router>
+
+    <!--Custom Routers-->
+    <!--Unqualified Messages default-output-channel resolution-required-->
+    <int:router input-channel="all-in-channel"
+                ref="accountRouter"
+                method="oldAccount"
+                resolution-required="true"
+                default-output-channel="stdout"/>
+    <bean id="accountRouter" class="  com.edu.routes.AccountRouter"/>
+
+    <!--Recipient List Router-->
+    <!--message to channels defined in a recipient’s list-->
+    <int:recipient-list-router input-channel="all-in-channel">
+        <int:recipient channel="newAccounts_q"/>
+        <int:recipient channel="in-channel"/>
+        <int:recipient channel="stdout"/>
+    </int:recipient-list-router>
+
+    <!--Routers Using Annotations-->
+    <context:component-scan base-package="com.edu.routes"/>
+    <int:router id="annonatedRouter" input-channel="in-channel"
+                default-output-channel="newAccounts_q"
+                ref="accountRouterAnn">
+    </int:router>
+
+
+</beans>
