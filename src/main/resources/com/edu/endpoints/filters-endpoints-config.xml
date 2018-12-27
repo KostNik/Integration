@@ -1,0 +1,54 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xmlns:int="http://www.springframework.org/schema/integration"
+       xmlns:context="http://www.springframework.org/schema/context"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans
+           http://www.springframework.org/schema/beans/spring-beans.xsd
+           http://www.springframework.org/schema/integration
+           http://www.springframework.org/schema/integration/spring-integration.xsd http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context.xsd">
+
+    <!--filters-->
+    <!--custom filter-->
+    <int:filter input-channel="in-channel"
+                output-channel="out-channel"
+                ref="securedFilter"
+                method="isSecuredAccount">
+    </int:filter>
+    <bean id="securedFilter" class="com.edu.filters.AccountFilter"/>
+
+
+    <!--MessageSelector filter-->
+    <int:filter input-channel="in-channel"
+                output-channel="out-channel"
+                ref="publicFilter">
+    </int:filter>
+
+    <bean id="publicFilter"
+          class="com.edu.filters.AccountFilterSelector"/>
+
+    <!--annotated filter-->
+    <context:component-scan base-package="com.edu.filters"/>
+    <int:filter input-channel="in-channel"
+                output-channel="stdout"
+                ref="accountFilterAnn" >
+    </int:filter>
+
+    <!--Discarded Messages-->
+    <!--throw exceptions-->
+    <int:filter input-channel="all-trades-in-channel"
+                output-channel="stdout"
+                ref="accountFilterAnn"
+                throw-exception-on-rejection="true">
+    </int:filter>
+
+    <!--move to another channel-->
+    <int:filter input-channel="all-trades-in-channel"
+                output-channel="stdout"
+                ref="accountFilterAnn"
+                discard-channel="newAccounts_p">
+    </int:filter>
+
+
+
+</beans>
