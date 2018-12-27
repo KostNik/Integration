@@ -1,0 +1,89 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xmlns:int="http://www.springframework.org/schema/integration"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans
+           http://www.springframework.org/schema/beans/spring-beans.xsd
+           http://www.springframework.org/schema/integration
+           http://www.springframework.org/schema/integration/spring-integration.xsd">
+
+    <!--default correlation and release strategies-->
+
+    <int:aggregator input-channel="in-channel"
+                    output-channel="agg-channel"
+                    ref="iaccountAggregator"
+                    method="aggregate">
+    </int:aggregator>
+
+    <bean id="iaccountAggregator"
+          class="com.edu.aggregators.IAccountAggregator"/>
+
+    <int:channel id="agg-channel"/>
+
+    <!--Correlation Strategy-->
+    <!--default HeaderAttributeCorrelationStrategy CORRELATION_ID message-->
+
+    <int:aggregator input-channel="in-channel"
+                    output-channel="agg-channel"
+                    ref="iaccountAggregator"
+                    correlation-strategy="iaccountCorrelationStrategy"
+                    method="aggregate">
+    </int:aggregator>
+
+    <bean id="iaccountCorrelationStrategy" class="com.edu.aggregators.IAccountCorrelationStrategy"/>
+
+
+    <int:aggregator input-channel="in-channel"
+                    output-channel="agg-channel"
+                    ref="iaccountAggregator"
+                    correlation-strategy="iaccountCorrelationStrategyCustom"
+                    correlation-strategy-method="correlate"
+                    method="aggregate">
+    </int:aggregator>
+    <bean id="iaccountCorrelationStrategyCustom" class="com.edu.aggregators.IAccountCorrelationStrategyCustom"/>
+
+
+    <!--Release Strategy-->
+    <!--default SequenceSizeReleaseStrategy messages  grouped  by  SEQUENCE_SIZE-->
+    <int:aggregator input-channel="in-channel"
+                    output-channel="agg-channel"
+                    ref="iaccountAggregator"
+                    correlation-strategy="iaccountCorrelationStrategyCustom"
+                    correlation-strategy-method="correlate"
+                    release-strategy="iaccountReleaseStrategy"
+                    method="aggregate">
+    </int:aggregator>
+
+
+    <bean id="iaccountReleaseStrategy" class="com.edu.aggregators.IAccountReleaseStrategy"/>
+
+
+    <int:aggregator input-channel="in-channel"
+                    output-channel="agg-channel"
+                    ref="iaccountAggregator"
+                    correlation-strategy="iaccountCorrelationStrategyCustom"
+                    correlation-strategy-method="correlate"
+                    release-strategy="iaccountReleaseStrategyCustom"
+                    release-strategy-method="canReleaseGroup"
+                    message-store="mySqlStore"
+                    method="aggregate">
+    </int:aggregator>
+
+    <bean id="iaccountReleaseStrategyCustom" class="com.edu.aggregators.IAccountReleaseStrategyCustom"/>
+
+
+    <!--Message Store default - in memory-->
+    <bean id="mySqlStore" class="org.springframework.integration.jdbc.store.JdbcMessageStore">
+        <constructor-arg name="dataSource" ref="mySqlDataSource"/>
+    </bean>
+
+    <bean id="mySqlDataSource" class="com.edu.aggregators.datasourse.BaseDatasource"/>
+
+    <!--Resequencers-->
+    <int:resequencer input-channel="all-in-reseq-channel"
+                     output-channel="out-channel"
+                     release-partial-sequences="true">
+    </int:resequencer>
+
+
+</beans>
