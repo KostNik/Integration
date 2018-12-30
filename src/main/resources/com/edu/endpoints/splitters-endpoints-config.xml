@@ -21,7 +21,7 @@
     <!--AbstractMessageSplitter-->
     <int:splitter input-channel="in-channel"
                   ref="iAccountSplitterAbs"
-                  output-channel="out-channel">
+                  output-channel="split-channel">
     </int:splitter>
     <bean id="iAccountSplitterAbs"
           class="com.edu.splitters.IAccountSplitterAbs" />
@@ -29,4 +29,5 @@
     <!--Using Annotations @Splitter-->
 
 
+    <int:channel id="split-channel"/>
 </beans>
