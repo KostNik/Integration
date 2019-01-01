@@ -1,5 +1,6 @@
 package com.edu.someTests;
 
+import com.sun.mail.imap.IMAPStore;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.integration.channel.DirectChannel;
@@ -9,6 +10,8 @@ import org.springframework.stereotype.Component;
 
 import javax.mail.Message;
 import javax.mail.MessagingException;
+import javax.mail.Session;
+import javax.mail.Store;
 import javax.mail.internet.MimeMessage;
 import java.time.Instant;
 
@@ -29,12 +32,13 @@ public class EmailTest {
 
 //        javaMailSender.send(mimeMessage);
 
-        inputChannel.subscribe(message -> {
-            Object payload = message.getPayload();
-            MessageHeaders headers = message.getHeaders();
-            System.out.println(payload);
-            System.out.println(headers);
-        });
+//        inputChannel.subscribe(message -> {
+//            Object payload = message.getPayload();
+//            MessageHeaders headers = message.getHeaders();
+//            System.out.println(payload);
+//            System.out.println(headers);
+//        });
+
 
     }
 

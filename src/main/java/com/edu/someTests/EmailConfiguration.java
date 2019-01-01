@@ -1,5 +1,6 @@
 package com.edu.someTests;
 
+import com.sun.mail.imap.IMAPStore;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.integration.mail.support.DefaultMailHeaderMapper;
@@ -7,8 +8,12 @@ import org.springframework.integration.mapping.HeaderMapper;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.mail.javamail.JavaMailSenderImpl;
 
+import java.util.Properties;
+
 import javax.mail.Flags;
 import javax.mail.Folder;
+import javax.mail.NoSuchProviderException;
+import javax.mail.Session;
 import javax.mail.internet.AddressException;
 import javax.mail.internet.InternetAddress;
 import javax.mail.internet.MimeMessage;
@@ -16,7 +21,6 @@ import javax.mail.search.AndTerm;
 import javax.mail.search.FlagTerm;
 import javax.mail.search.FromTerm;
 import javax.mail.search.SearchTerm;
-import java.util.Properties;
 
 @Configuration
 public class EmailConfiguration {
@@ -43,7 +47,6 @@ public class EmailConfiguration {
 //    public IntegrationFlow imapIdleFlow() {
 
 
-
 //        return IntegrationFlows
 //                .from(Mail.imapIdleAdapter("imap://user:pw@localhost:" + imapIdleServer.getPort() + "/INBOX")
 //                        .autoStartup(true)
@@ -57,6 +60,15 @@ public class EmailConfiguration {
 //                .get();
 //    }
 
+    @Bean("testJavaSession")
+    public Session getSession(SmtpAuthenticator smtpAuthenticator) throws NoSuchProviderException {
+        Properties properties = new Properties();
+        properties.put("mail.imap.host","imap.gmail.com");
+        properties.put("mail.imap.port","993");
+        return Session.getDefaultInstance(properties, smtpAuthenticator);
+    }
+
+
     @Bean
     public HeaderMapper<MimeMessage> mailHeaderMapper() {
         return new DefaultMailHeaderMapper();
@@ -66,8 +78,7 @@ public class EmailConfiguration {
         try {
             FromTerm fromTerm = new FromTerm(new InternetAddress("bar@baz"));
             return new AndTerm(fromTerm, new FlagTerm(new Flags(Flags.Flag.SEEN), false));
-        }
-        catch (AddressException e) {
+        } catch (AddressException e) {
             throw new RuntimeException(e);
         }
 
