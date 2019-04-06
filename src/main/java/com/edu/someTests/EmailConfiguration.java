@@ -1,14 +1,11 @@
 package com.edu.someTests;
 
-import com.sun.mail.imap.IMAPStore;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.integration.mail.support.DefaultMailHeaderMapper;
 import org.springframework.integration.mapping.HeaderMapper;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.mail.javamail.JavaMailSenderImpl;
-
-import java.util.Properties;
 
 import javax.mail.Flags;
 import javax.mail.Folder;
@@ -21,6 +18,7 @@ import javax.mail.search.AndTerm;
 import javax.mail.search.FlagTerm;
 import javax.mail.search.FromTerm;
 import javax.mail.search.SearchTerm;
+import java.util.Properties;
 
 @Configuration
 public class EmailConfiguration {
@@ -39,7 +37,6 @@ public class EmailConfiguration {
         props.put("mail.smtp.auth", "true");
         props.put("mail.smtp.starttls.enable", "true");
         props.put("mail.debug", "true");
-
         return mailSender;
     }
 
