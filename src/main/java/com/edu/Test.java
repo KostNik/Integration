@@ -1,6 +1,5 @@
 package com.edu;
 
-import com.edu.someTests.EmailTest;
 import org.springframework.context.support.GenericXmlApplicationContext;
 
 import javax.mail.MessagingException;
@@ -13,7 +12,8 @@ public class Test {
         applicationContext.start();
 
 //        AccountService timeGeneratedAccountService = applicationContext.getBean("timeGeneratedAccountService", AccountService.class);
-        EmailTest emailTest = applicationContext.getBean("emailTest", EmailTest.class);
-        emailTest.test();
+//        EmailTest emailTest = applicationContext.getBean("emailTest", EmailTest.class);
+
+//        emailTest.test();
     }
 }

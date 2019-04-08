@@ -1,0 +1,56 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xmlns:int="http://www.springframework.org/schema/integration"
+       xmlns:task="http://www.springframework.org/schema/task"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans
+           http://www.springframework.org/schema/beans/spring-beans.xsd
+           http://www.springframework.org/schema/integration
+           http://www.springframework.org/schema/integration/spring-integration.xsd http://www.springframework.org/schema/task http://www.springframework.org/schema/task/spring-task.xsd">
+
+    <int:channel id="error_sx_channel">
+        <int:dispatcher task-executor="accountsExecutor"/>
+    </int:channel>
+
+    <task:executor id="task_executor_sx" pool-size="2" keep-alive="10" rejection-policy="ABORT"/>
+
+    <int:header-enricher
+            input-channel="to-splitter-channel"
+            output-channel="to-splitter-channel-enriched">
+        <int:error-channel ref="error_sx_channel"/>
+        <int:header name="SPLITTER_SX_HEADER" value="SPLITTER_SX_VALUE"/>
+    </int:header-enricher>
+
+    <!--Splitters-->
+    <!--Using Custom Splitters-->
+    <int:splitter input-channel="to-splitter-channel-enriched"
+                  ref="iAccountSplitter"
+                  output-channel="out-channel-sx">
+    </int:splitter>
+
+    <bean id="iAccountSplitter" class="com.edu.splitters.IAccountSplitterAbs_Sandbox"/>
+
+
+    <int:channel id="out-channel-sx">
+        <int:queue capacity="5"/>
+    </int:channel>
+
+    <int:poller id="poller_1" max-messages-per-poll="1" fixed-rate="500"/>
+    <int:service-activator input-channel="out-channel-sx"
+                           ref="serviceActivatorSX"
+
+    >
+        <int:poller ref="poller_1"/>
+    </int:service-activator>
+
+    <bean id="serviceActivatorSX" class="com.edu.endpoints.ServiceActivatorSX"/>
+
+    <!--org.springframework.core.task.TaskExecutor-->
+    <bean id="accountsExecutor" class="com.edu.channels.executors.AccountsExecutorSX"/>
+
+
+    <!--Using Annotations @Splitter-->
+
+
+    <int:channel id="split-channel"/>
+</beans>

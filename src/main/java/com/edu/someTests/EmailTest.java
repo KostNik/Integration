@@ -1,21 +1,16 @@
 package com.edu.someTests;
 
-import com.sun.mail.imap.IMAPStore;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.integration.channel.DirectChannel;
 import org.springframework.mail.javamail.JavaMailSender;
-import org.springframework.messaging.MessageHeaders;
-import org.springframework.stereotype.Component;
 
 import javax.mail.Message;
 import javax.mail.MessagingException;
-import javax.mail.Session;
-import javax.mail.Store;
 import javax.mail.internet.MimeMessage;
 import java.time.Instant;
 
-@Component
+//@Component
 public class EmailTest {
 
     @Autowired
