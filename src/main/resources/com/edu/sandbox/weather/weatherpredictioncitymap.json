@@ -1,0 +1,16 @@
+{
+  "countries": [
+    {
+      "name": "Ukraine",
+      "label": "ua",
+      "cities": [
+        {
+          "name": "Kharkiv"
+        },
+        {
+          "name": "Kyiv"
+        }
+      ]
+    }
+  ]
+}

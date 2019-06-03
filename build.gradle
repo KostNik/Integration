@@ -21,6 +21,8 @@ dependencies {
     compile group: 'org.springframework.integration', name: 'spring-integration-mail', version: '5.1.1.RELEASE'
     compile group: 'javax.mail', name: 'mail', version: '1.4.7'
     compile group: 'commons-net', name: 'commons-net', version: '3.6'
+    compile group: 'org.apache.commons', name: 'commons-lang3', version: '3.9'
+    compile group: 'org.apache.httpcomponents', name: 'httpclient', version: '4.5.8'
 
 
     compile group: 'org.apache.logging.log4j', name: 'log4j-core', version: '2.11.1'

@@ -1,0 +1,78 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xmlns:int="http://www.springframework.org/schema/integration"
+       xmlns:context="http://www.springframework.org/schema/context"
+       xmlns:inthttp="http://www.springframework.org/schema/integration/http"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans
+           http://www.springframework.org/schema/beans/spring-beans.xsd
+           http://www.springframework.org/schema/integration
+           http://www.springframework.org/schema/integration/spring-integration.xsd
+           http://www.springframework.org/schema/context
+           http://www.springframework.org/schema/context/spring-context.xsd">
+
+    <context:annotation-config/>
+
+    <context:component-scan base-package="com.edu.sandbox.weather"/>
+
+    <context:property-placeholder
+            location="com/edu/sandbox/weather/weatherprediction.properties"
+            ignore-resource-not-found="false"/>
+
+    <int:gateway id="weatherRequestGateway"
+                 default-request-channel="weatherQueryChannel"
+                 service-interface="com.edu.sandbox.weather.gateway.WeatherRequestGateway"/>
+
+
+    <int:chain input-channel="weatherQueryChannel"
+               output-channel="wsOutboundChannel"
+               id="weatherQueryMessageChain">
+
+        <int:transformer id="queryToMessageTransformer"
+                         method="transformToMessage"
+                         ref="weatherQueryToMessageTransformer"/>
+
+        <bean id="weatherQueryToMessageTransformer"
+              class="com.edu.sandbox.weather.transformers.WeatherQueryToMessageTransformer"/>
+
+        <int:header-enricher id="weatherMessageParamsEnricher">
+            <int:header name="APP_ID" expression="${openweathermap.api.key}"/>
+            <int:header name="APP_HOST" expression='${openweathermap.host}'/>
+            <int:correlation-id value="CITY"/>
+
+        </int:header-enricher>
+
+    </int:chain>
+
+    <int:channel id="wsOutboundChannel"/>
+
+    <inthttp:inbound-channel-adapter
+            channel="wsOutboundChannel">
+        <inthttp:cross-origin method="GET"/>
+
+    </inthttp:inbound-channel-adapter>
+
+    <inthttp:outbound-channel-adapter
+            http-method="GET"
+            charset="UTF-8"
+            url="google.com"
+            encode-uri="true"
+            channel="wsOutboundChannel"/>
+
+
+    <int:channel id="infoChannel"/>
+    <int:service-activator input-channel="infoChannel"
+                           id="infoService"
+                           method="printData"
+                           ref="infoServiceActivator"/>
+    <bean id="infoServiceActivator" class="com.edu.sandbox.weather.serviceactivators.InfoServiceActivator"/>
+
+    <bean id="executor" class="org.springframework.scheduling.config.TaskExecutorFactoryBean"/>
+
+    <!--    <int:publish-subscribe-channel id="errorChannel" error-handler="errorHandler" task-executor="executor"/>-->
+
+    <int:channel id="weatherResultChannel"/>
+    <int:channel id="weatherQueryChannel"/>
+
+
+</beans>
