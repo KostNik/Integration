@@ -3,13 +3,16 @@
        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
        xmlns:int="http://www.springframework.org/schema/integration"
        xmlns:context="http://www.springframework.org/schema/context"
-       xmlns:inthttp="http://www.springframework.org/schema/integration/http"
+       xmlns:int-http="http://www.springframework.org/schema/integration/http"
+       xmlns:util="http://www.springframework.org/schema/util"
        xsi:schemaLocation="http://www.springframework.org/schema/beans
            http://www.springframework.org/schema/beans/spring-beans.xsd
            http://www.springframework.org/schema/integration
            http://www.springframework.org/schema/integration/spring-integration.xsd
+           http://www.springframework.org/schema/integration/http
+           http://www.springframework.org/schema/integration/http/spring-integration-http-5.1.xsd
            http://www.springframework.org/schema/context
-           http://www.springframework.org/schema/context/spring-context.xsd">
+           http://www.springframework.org/schema/context/spring-context.xsd http://www.springframework.org/schema/util http://www.springframework.org/schema/util/spring-util.xsd">
 
     <context:annotation-config/>
 
@@ -37,27 +40,40 @@
 
         <int:header-enricher id="weatherMessageParamsEnricher">
             <int:header name="APP_ID" expression="${openweathermap.api.key}"/>
-            <int:header name="APP_HOST" expression='${openweathermap.host}'/>
             <int:correlation-id value="CITY"/>
-
         </int:header-enricher>
 
     </int:chain>
 
     <int:channel id="wsOutboundChannel"/>
 
-    <inthttp:inbound-channel-adapter
-            channel="wsOutboundChannel">
-        <inthttp:cross-origin method="GET"/>
+    <util:constant static-field="com.edu.sandbox.weather.Constants.CITY_KEY" id="CITY_KEY"/>
+    <util:constant static-field="com.edu.sandbox.weather.Constants.COUNTRY_KEY" id="COUNTRY_KEY"/>
 
-    </inthttp:inbound-channel-adapter>
+    <!--    <int:channel id="wsOutboundChannelJSON"/>-->
+    <!--    <int:header-enricher input-channel="wsOutboundChannel"-->
+    <!--                         output-channel="wsOutboundChannelJSON">-->
+    <!--        <int:header name="contentType" value="application/json" overwrite="true"/>-->
+    <!--    </int:header-enricher>-->
 
-    <inthttp:outbound-channel-adapter
-            http-method="GET"
-            charset="UTF-8"
-            url="google.com"
-            encode-uri="true"
-            channel="wsOutboundChannel"/>
+    <int-http:outbound-gateway id="weatherServiceAdapter"
+                               charset="UTF-8"
+                               http-method="GET"
+                               reply-channel="infoChannel"
+                               url-expression="${openweathermap.host}"
+                               request-channel="wsOutboundChannel"
+                               expected-response-type="com.edu.sandbox.weather.domain.WeatherPrediction">
+
+        <int-http:uri-variable name="city" expression="headers.get(@CITY_KEY)"/>
+        <int-http:uri-variable name="appid" expression="headers.get('APP_ID')"/>
+        <int-http:uri-variable name="country" expression="headers.get(@COUNTRY_KEY)"/>
+    </int-http:outbound-gateway>
+
+    <!--    <util:list id="converters">-->
+    <!--        <bean class="org.springframework.http.converter.ByteArrayHttpMessageConverter" />-->
+    <!--        <bean class="org.springframework.http.converter.StringHttpMessageConverter" />-->
+    <!--        <bean class="org.springframework.http.converter.json.MappingJackson2HttpMessageConverter" />-->
+    <!--    </util:list>-->
 
 
     <int:channel id="infoChannel"/>

@@ -1,9 +1,12 @@
 
 package com.edu.sandbox.weather.domain;
 
+import com.edu.sandbox.weather.domain.deserializer.DateConverter;
 import com.fasterxml.jackson.annotation.*;
+import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import org.apache.commons.lang3.builder.ToStringBuilder;
 
+import java.time.LocalDateTime;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -27,9 +30,11 @@ public class Sys {
     @JsonProperty("country")
     private String country;
     @JsonProperty("sunrise")
-    private int sunrise;
+    @JsonDeserialize(converter = DateConverter.class)
+    private LocalDateTime sunrise;
     @JsonProperty("sunset")
-    private int sunset;
+    @JsonDeserialize(converter = DateConverter.class)
+    private LocalDateTime sunset;
     @JsonIgnore
     private Map<String, Object> additionalProperties = new HashMap<String, Object>();
 
@@ -74,22 +79,22 @@ public class Sys {
     }
 
     @JsonProperty("sunrise")
-    public int getSunrise() {
+    public LocalDateTime getSunrise() {
         return sunrise;
     }
 
     @JsonProperty("sunrise")
-    public void setSunrise(int sunrise) {
+    public void setSunrise(LocalDateTime sunrise) {
         this.sunrise = sunrise;
     }
 
     @JsonProperty("sunset")
-    public int getSunset() {
+    public LocalDateTime getSunset() {
         return sunset;
     }
 
     @JsonProperty("sunset")
-    public void setSunset(int sunset) {
+    public void setSunset(LocalDateTime sunset) {
         this.sunset = sunset;
     }
 
