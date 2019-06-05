@@ -22,8 +22,8 @@ public class WeatherQueryToMessageTransformer extends AbstractMessageHandler imp
     public Message transformToMessage(Message<WeatherPredictionQuery> query) {
         log.info("TRANSFORM Message (query) {} :", query);
         return MessageBuilder.withPayload(LocalDateTime.now().format(DateTimeFormatter.ISO_LOCAL_DATE_TIME))
-                .setHeader(CITY_KEY, query.getPayload().getCityLabel())
-                .setHeader(COUNTRY_KEY, query.getPayload().getCountryLabel())
+                .setHeader(CITY_KEY, query.getPayload().getCity())
+                .setHeader(COUNTRY_KEY, query.getPayload().getCountry())
                 .build();
     }
 

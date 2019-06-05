@@ -12,11 +12,9 @@ public class TestWeather {
         GenericApplicationContext applicationContext =
                 new GenericXmlApplicationContext("com/edu/sandbox/weather/weather-config-spring.xml");
         applicationContext.start();
-        System.out.println("blah...");
-
 
         WeatherRequestGateway weatherRequestGateway = applicationContext.getBean(WeatherRequestGateway.class);
-        WeatherPredictionQuery predictionQuery = WeatherPredictionQuery.builder().cityLabel("Kharkiv").countryLabel("ua").build();
+        WeatherPredictionQuery predictionQuery = WeatherPredictionQuery.builder().city("Kharkiv").country("ua").build();
 
         log.info("QUERY to send: {}", predictionQuery);
         Object weather = weatherRequestGateway.requestWeather(predictionQuery);

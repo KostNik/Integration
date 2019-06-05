@@ -1,7 +1,9 @@
 
 package com.edu.sandbox.weather.domain;
 
+import com.edu.sandbox.weather.domain.deserializer.TemperatureConverter;
 import com.fasterxml.jackson.annotation.*;
+import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import org.apache.commons.lang3.builder.ToStringBuilder;
 
 import java.util.HashMap;
@@ -18,15 +20,18 @@ import java.util.Map;
 public class Main {
 
     @JsonProperty("temp")
-    private double temp;
+    @JsonDeserialize(converter = TemperatureConverter.class)
+    private float temp;
     @JsonProperty("pressure")
     private int pressure;
     @JsonProperty("humidity")
     private int humidity;
     @JsonProperty("temp_min")
-    private double tempMin;
+    @JsonDeserialize(converter = TemperatureConverter.class)
+    private float tempMin;
     @JsonProperty("temp_max")
-    private double tempMax;
+    @JsonDeserialize(converter = TemperatureConverter.class)
+    private float tempMax;
     @JsonIgnore
     private Map<String, Object> additionalProperties = new HashMap<String, Object>();
 
@@ -36,7 +41,7 @@ public class Main {
     }
 
     @JsonProperty("temp")
-    public void setTemp(double temp) {
+    public void setTemp(float temp) {
         this.temp = temp;
     }
 
@@ -66,7 +71,7 @@ public class Main {
     }
 
     @JsonProperty("temp_min")
-    public void setTempMin(double tempMin) {
+    public void setTempMin(float tempMin) {
         this.tempMin = tempMin;
     }
 
@@ -76,7 +81,7 @@ public class Main {
     }
 
     @JsonProperty("temp_max")
-    public void setTempMax(double tempMax) {
+    public void setTempMax(float tempMax) {
         this.tempMax = tempMax;
     }
 

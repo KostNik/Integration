@@ -10,8 +10,8 @@ import lombok.ToString;
 @Getter
 public class WeatherPredictionQuery {
 
-    private String countryLabel;
-    private String cityLabel;
+    private String country;
+    private String city;
 
 
 
