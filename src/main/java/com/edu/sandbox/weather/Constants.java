@@ -4,4 +4,5 @@ public interface Constants {
 
     String CITY_KEY = "CITY_KEY";
     String COUNTRY_KEY = "COUNTRY_KEY";
+    String APP_ID = "APP_ID";
 }

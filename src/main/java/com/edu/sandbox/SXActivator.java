@@ -10,10 +10,9 @@ import org.springframework.context.event.EventListener;
 import org.springframework.integration.support.MessageBuilder;
 import org.springframework.messaging.Message;
 import org.springframework.messaging.MessageChannel;
-import org.springframework.stereotype.Component;
 
 @Log4j2
-@Component
+//@Component
 public class SXActivator {
 
     @Autowired

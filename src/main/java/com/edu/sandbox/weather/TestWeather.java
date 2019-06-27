@@ -1,5 +1,6 @@
 package com.edu.sandbox.weather;
 
+import com.edu.sandbox.weather.domain.Weather;
 import com.edu.sandbox.weather.gateway.WeatherRequestGateway;
 import lombok.extern.log4j.Log4j2;
 import org.springframework.context.support.GenericApplicationContext;
@@ -17,7 +18,7 @@ public class TestWeather {
         WeatherPredictionQuery predictionQuery = WeatherPredictionQuery.builder().city("Kharkiv").country("ua").build();
 
         log.info("QUERY to send: {}", predictionQuery);
-        Object weather = weatherRequestGateway.requestWeather(predictionQuery);
+        Weather weather = weatherRequestGateway.requestWeather(predictionQuery);
 
         System.out.println(weather);
     }

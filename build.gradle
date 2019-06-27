@@ -1,5 +1,6 @@
 plugins {
     id 'java'
+    id 'war'
 }
 
 group 'com.edu.spring'
@@ -9,6 +10,12 @@ sourceCompatibility = 1.8
 
 repositories {
     mavenCentral()
+}
+
+task ('clean_war') {
+    dependsOn 'clean'
+    dependsOn 'build'
+    dependsOn 'war'
 }
 
 dependencies {
