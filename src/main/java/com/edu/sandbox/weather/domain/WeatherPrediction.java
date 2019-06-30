@@ -1,6 +1,7 @@
 package com.edu.sandbox.weather.domain;
 
 import com.fasterxml.jackson.annotation.*;
+import lombok.ToString;
 import org.apache.commons.lang3.builder.ToStringBuilder;
 
 import java.util.HashMap;

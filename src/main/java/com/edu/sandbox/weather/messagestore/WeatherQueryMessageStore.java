@@ -49,7 +49,7 @@ public class WeatherQueryMessageStore extends SimpleMessageStore {
 
     @Override
     public Message<?> pollMessageFromGroup(Object groupId) {
-        log.info("pollMessageFromGroup {}", groupId.toString());
+        log.info("pollMessageFromGroup {}", groupId);
         return super.pollMessageFromGroup(groupId);
     }
 }

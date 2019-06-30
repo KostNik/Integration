@@ -1,10 +1,10 @@
 package com.edu.sandbox.weather.gateway;
 
 import com.edu.sandbox.weather.WeatherPredictionQuery;
-import com.edu.sandbox.weather.domain.Weather;
+import com.edu.sandbox.weather.domain.WeatherPrediction;
 
 public interface WeatherRequestGateway {
 
-    Weather requestWeather(WeatherPredictionQuery query);
+    WeatherPrediction requestWeather(WeatherPredictionQuery query);
 
 }

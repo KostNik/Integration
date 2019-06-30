@@ -4,7 +4,8 @@
        xmlns:int="http://www.springframework.org/schema/integration"
        xmlns:context="http://www.springframework.org/schema/context"
        xmlns:int-http="http://www.springframework.org/schema/integration/http"
-       xmlns:util="http://www.springframework.org/schema/util" xmlns:task="http://www.springframework.org/schema/task"
+       xmlns:util="http://www.springframework.org/schema/util"
+       xmlns:task="http://www.springframework.org/schema/task" xmlns:p="http://www.springframework.org/schema/p"
        xsi:schemaLocation="http://www.springframework.org/schema/beans
            http://www.springframework.org/schema/beans/spring-beans.xsd
            http://www.springframework.org/schema/integration
@@ -12,7 +13,11 @@
            http://www.springframework.org/schema/integration/http
            http://www.springframework.org/schema/integration/http/spring-integration-http-5.1.xsd
            http://www.springframework.org/schema/context
-           http://www.springframework.org/schema/context/spring-context.xsd http://www.springframework.org/schema/util http://www.springframework.org/schema/util/spring-util.xsd http://www.springframework.org/schema/task http://www.springframework.org/schema/task/spring-task.xsd">
+           http://www.springframework.org/schema/context/spring-context.xsd
+           http://www.springframework.org/schema/util
+           http://www.springframework.org/schema/util/spring-util.xsd
+           http://www.springframework.org/schema/task
+           http://www.springframework.org/schema/task/spring-task.xsd">
 
     <context:annotation-config/>
 
@@ -28,7 +33,8 @@
 
     <int:gateway id="weatherRequestGateway"
                  default-request-channel="weatherQueryChannel"
-                 service-interface="com.edu.sandbox.weather.gateway.WeatherRequestGateway"/>
+                 service-interface="com.edu.sandbox.weather.gateway.WeatherRequestGateway"
+                 default-reply-channel="weatherResultChannel"/>
 
     <int:channel id="weatherQueryChannel"
                  datatype="com.edu.sandbox.weather.WeatherPredictionQuery">
@@ -48,7 +54,11 @@
 
     <bean id="weatherQueryMessageStore" class="com.edu.sandbox.weather.messagestore.WeatherQueryMessageStore"/>
 
-    <task:executor id="taskExecutor" pool-size="2" keep-alive="10" queue-capacity="5" rejection-policy="DISCARD_OLDEST"/>
+    <task:executor id="taskExecutor"
+                   pool-size="5"
+                   keep-alive="10"
+                   queue-capacity="5"
+                   rejection-policy="DISCARD_OLDEST"/>
 
     <int-http:outbound-gateway id="weatherServiceAdapter"
                                charset="UTF-8"
@@ -58,34 +68,54 @@
                                request-channel="wsOutboundChannel"
                                expected-response-type="com.edu.sandbox.weather.domain.WeatherPrediction">
 
-        <int:poller max-messages-per-poll="2" time-unit="MILLISECONDS" fixed-rate="10000"/>
+        <int:poller max-messages-per-poll="10" time-unit="MILLISECONDS" fixed-rate="2000"/>
 
         <int-http:uri-variable name="city" expression="headers.get(@cityKey)"/>
         <int-http:uri-variable name="appid" expression="headers.get(@appIDKey)"/>
         <int-http:uri-variable name="country" expression="headers.get(@countryKey)"/>
     </int-http:outbound-gateway>
 
-    <!--    <util:list id="converters">-->
-    <!--        <bean class="org.springframework.http.converter.ByteArrayHttpMessageConverter" />-->
-    <!--        <bean class="org.springframework.http.converter.StringHttpMessageConverter" />-->
-    <!--        <bean class="org.springframework.http.converter.json.MappingJackson2HttpMessageConverter" />-->
-    <!--    </util:list>-->
-
     <int:publish-subscribe-channel id="weatherResultChannel"
-                                   max-subscribers="2"
+                                   max-subscribers="3"
+                                   apply-sequence="true"
+                                   task-executor="taskExecutor"
                                    datatype="com.edu.sandbox.weather.domain.WeatherPrediction"/>
+
+
+    <int:aggregator id="weatherCityAggregator"
+                    message-store="weatherQueryMessageStore"
+                    input-channel="weatherResultChannel"
+                    output-channel="infoChannel"
+                    send-partial-result-on-expiry="true"
+                    correlation-strategy="cityCorrelationStrategy"
+                    release-strategy="amountReleaseStrategy"
+                    group-timeout="10000"
+                    expire-groups-upon-completion="true"
+                    discard-channel="discardedChannel"
+    >
+    </int:aggregator>
+
+    <int:logging-channel-adapter id="aggregatedLog" level="INFO" channel="infoChannel" log-full-message="true" logger-name="AGGREGATED"/>
+    <int:logging-channel-adapter id="discardedLog" level="INFO" channel="discardedChannel" log-full-message="true" logger-name="DISCARDED"/>
+
+    <bean id="cityCorrelationStrategy" class="com.edu.sandbox.weather.correlation.CityCorrelationStrategy"/>
+    <bean id="amountReleaseStrategy" class="com.edu.sandbox.weather.release.AmountReleaseStrategy" p:topbound="3"/>
 
     <bean id="executor" class="org.springframework.scheduling.config.TaskExecutorFactoryBean"/>
 
 
     <int:channel id="infoChannel"/>
+    <int:channel id="discardedChannel"/>
+
     <int:service-activator input-channel="weatherResultChannel"
-                           id="infoService"
                            method="printData"
                            ref="infoServiceActivator"/>
+
+<!--    <int:service-activator input-channel="infoChannel"-->
+<!--                           method="printData"-->
+<!--                           ref="infoServiceActivator"/>-->
+
     <bean id="infoServiceActivator" class="com.edu.sandbox.weather.serviceactivators.InfoServiceActivator"/>
 
-
-    <!--    <int:publish-subscribe-channel id="errorChannel" error-handler="errorHandler" task-executor="executor"/>-->
 
 </beans>
